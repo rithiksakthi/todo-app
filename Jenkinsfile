@@ -1,7 +1,7 @@
 pipeline {
     agent any
     environment {
-        DOCKER_CRED = credentials('dockerhub-rithik1007')
+        DOCKER_CRED = credentials('docker-token')
     }
 
     stages {
@@ -14,7 +14,7 @@ pipeline {
 
         stage('Push Docker hub') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-rithik1007', usernameVariable: 'DOCKER_CRED_USR', passwordVariable: 'DOCKER_CRED_PSW')]) { 
+                withCredentials([usernamePassword(credentialsId: 'docker-token', usernameVariable: 'DOCKER_CRED_USR', passwordVariable: 'DOCKER_CRED_PSW')]) { 
                     sh 'docker login -u ${DOCKER_CRED_USR} -p ${DOCKER_CRED_PSW}' 
                     sh 'docker push rithik1007/todo-app:${BUILD_ID}'
                 }
@@ -34,3 +34,4 @@ pipeline {
         }
     }
 }
+
