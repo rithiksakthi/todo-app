@@ -1,37 +1,66 @@
 pipeline {
     agent any
+
     environment {
-        DOCKER_CRED = credentials('docker-token')
+        DOCKER_IMAGE = 'myapp'  // Docker image name
+        DOCKER_TAG = "latest"   // Tag name, you can customize this if needed
+        REPO_NAME = 'rithik1007/todo-app'  // Your Docker Hub repository name
     }
 
     stages {
-        stage('Build image') {
+        stage('Checkout') {
             steps {
-                sh 'docker build -t rithik1007/todo-app:${BUILD_ID} .'
-                sh 'docker images'
+                git branch: 'master', url: 'https://github.com/rithiksakthi/todo-app.git'
             }
         }
 
-        stage('Push Docker hub') {
+        stage('Build Docker Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-token', usernameVariable: 'DOCKER_CRED_USR', passwordVariable: 'DOCKER_CRED_PSW')]) { 
-                    sh 'docker login -u ${DOCKER_CRED_USR} -p ${DOCKER_CRED_PSW}' 
-                    sh 'docker push rithik1007/todo-app:${BUILD_ID}'
+                script {
+                    docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
                 }
             }
         }
 
-        stage('Deploy to Server') {
+        stage('Run Tests') {
             steps {
-                echo 'Application deployed successfully!' // Print a message instead of executing deployment commands
+                script {
+                    docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").inside {
+                        sh 'npm test'  // Replace with your app's test command
+                    }
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    // Ensure your Docker Hub credentials are set in Jenkins
+                    docker.withRegistry('', 'docker-token') {
+                        // Correctly tag the image with your Docker Hub repository (rithik1007/todo-app)
+                        sh "docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${REPO_NAME}:${DOCKER_TAG}"
+
+                        // Push the tagged image to Docker Hub
+                        sh "docker push ${REPO_NAME}:${DOCKER_TAG}"
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to Production') {
+            steps {
+                script {
+                    sh "docker run -d --name myapp -p 80:80 ${DOCKER_IMAGE}:${DOCKER_TAG}"  // Adjust port and options as needed
+                }
             }
         }
     }
 
     post {
         always {
-            sh 'docker image prune -a --force'
+            sh "docker rmi ${DOCKER_IMAGE}:${DOCKER_TAG}"  // Clean up image
         }
     }
 }
+
 
