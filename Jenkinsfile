@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'myapp'  // Docker image name
         DOCKER_TAG = "latest"   // Tag name, you can customize this if needed
-        REPO_NAME = 'rithik1007/todo-app'  // Your Docker Hub repository name
+        REPO_NAME = 'docker.io/rithik1007/todo-app'  // Your Docker Hub repository name
     }
 
     stages {
