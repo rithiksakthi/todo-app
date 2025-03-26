@@ -1,0 +1,23 @@
+name: Deploy to EC2 via SCP
+
+on:
+  workflow_dispatch:  # This triggers the workflow manually
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # Use Ubuntu runner for the job
+
+    steps:
+    # Step 1: Checkout the repository
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    # Step 2: Transfer the 'src' directory to EC2 via SCP
+    - name: Transfer 'src' directory to EC2 via SCP
+      uses: appleboy/scp-action@v0.1.7
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        source: "./src/*"  # This specifies the 'src' directory in your repo
+        target: "/home/${{ secrets.EC2_USERNAME }}/server/"  # This is the target directory on your EC2 instance
