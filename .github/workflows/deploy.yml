@@ -14,4 +14,4 @@ jobs:
 
       # Step 2: Debug Hostname
       - name: Debug Hostname
-        run: echo "EC2 Host: ${{ secrets.EC2_HOST }}"
+        run: echo "EC2 Host:${{ secrets.EC2_HOST }}"
