@@ -8,10 +8,10 @@ jobs:
     runs-on: ubuntu-latest  # Use Ubuntu runner for the job
 
     steps:
-    # Step 1: Checkout the repository
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - name: Debug Hostname
-      run: echo "EC2 Host: ${{ secrets.EC2_HOST }}"
-
+      # Step 2: Debug Hostname
+      - name: Debug Hostname
+        run: echo "EC2 Host: ${{ secrets.EC2_HOST }}"
